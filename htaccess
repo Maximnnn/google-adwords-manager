@@ -1,0 +1,26 @@
+           <IfModule mod_rewrite.c>
+               <IfModule mod_negotiation.c>
+                       Options -MultiViews
+               </IfModule>
+
+               RewriteEngine on
+
+               RewriteBase /~musakovs/google-manager
+
+                  ##
+                  ## Block all PHP files, except index and get
+                  ##
+                  RewriteCond %{REQUEST_FILENAME} -f
+                  RewriteCond %{REQUEST_FILENAME} \.php$
+                  RewriteCond %{REQUEST_URI} !/(get|api)\.php [NC]
+                  RewriteRule !^index.php index.php [L,NC]
+
+                  ##
+                  ## Standard routes
+                  ##
+                  RewriteCond %{REQUEST_FILENAME} !-f
+                  RewriteRule ^ index.php [L]
+
+
+
+           </IfModule>
