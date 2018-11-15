@@ -50,7 +50,7 @@ class CampaignsSharedSet extends BaseController
                 foreach ($page->getEntries() as $campaignSharedSet) {
                     {
                         $return[] = [
-                            'id' => $campaignSharedSet->getSharedSetId(),
+                            'shared_set_id' => $campaignSharedSet->getSharedSetId(),
                             'campaign_id' => $campaignSharedSet->getCampaignId(),
                             'name' => $campaignSharedSet->getSharedSetName(),
                             'type' => $campaignSharedSet->getSharedSetType(),

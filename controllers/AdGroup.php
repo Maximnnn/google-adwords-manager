@@ -57,7 +57,7 @@ class AdGroup extends BaseController {
                 $totalNumEntries = $page->getTotalNumEntries();
                 foreach ($page->getEntries() as $adGroup) {
                     $result[] = [
-                        'id' => $adGroup->getId(),
+                        'adgroup_id' => $adGroup->getId(),
                         'name' => $adGroup->getName(),
                         'status' => $adGroup->getStatus(),
                         'campaign_id' => $adGroup->getCampaignId()

@@ -58,7 +58,7 @@ class NegativeAdGroupCriterion extends BaseController
                         /**@var $a Keyword*/
                         $a = $criterion->getCriterion();
                         $return[] = [
-                            'id' => $a->getId(),
+                            'keyword_id' => $a->getId(),
                             'adgroup_id' => $criterion->getAdGroupId(),
                             'negative' => true,
                             'text' => $a->getText(),

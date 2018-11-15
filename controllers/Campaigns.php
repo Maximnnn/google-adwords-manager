@@ -4,8 +4,10 @@ use App\Http\BaseController;
 use App\Http\Request;
 use App\Http\Response;
 use App\Validation\Rules;
+use Google\AdsApi\AdManager\v201711\MinuteOfHour;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSession;
+use Google\AdsApi\AdWords\v201809\cm\AdSchedule;
 use Google\AdsApi\AdWords\v201809\cm\Campaign;
 use Google\AdsApi\AdWords\v201809\cm\CampaignCriterionOperation;
 use Google\AdsApi\AdWords\v201809\cm\CampaignCriterionService;
@@ -268,6 +270,83 @@ class Campaigns extends BaseController
         //$return['total_count'] = $totalNumEntries;
 
         return $return;
+    }
+
+    public function getScheduleForCampaigns(Request $request) {
+
+        $request->validate(Rules::create([
+            'campaignIds' => 'required|notempty'
+        ]), 'post');
+
+        $campaigns = $request->post('campaignIds');
+
+        $session = $this->getSession($this->getOAuth2());
+        $services = new AdWordsServices();
+
+
+
+        $return = [];
+        /**@var $campaignService CampaignCriterionService*/
+        $campaignService = $services->get($session, CampaignCriterionService::class);
+        // Create selector.
+        $selector = new Selector();
+        $selector->setFields(['CampaignId'])
+            ->setPredicates([
+                    new Predicate(
+                        'CampaignId',
+                        PredicateOperator::IN,
+                        $campaigns
+                    ),
+                    new Predicate(
+                        'CriteriaType',
+                        PredicateOperator::IN,
+                        [CriterionType::AD_SCHEDULE]
+                    )
+                ]
+            );
+
+
+        $page = $campaignService->get($selector);
+        $return = [];
+        if ($page->getEntries() !== null) {
+            /**@var $criterion \Google\AdsApi\AdWords\v201809\cm\CampaignCriterion  */
+            foreach ($page->getEntries() as $criterion) {
+                /**@var $c AdSchedule*/
+                $c = $criterion->getCriterion();
+                $return[] = [
+                    'campaign_id' => $criterion->getCampaignId(),
+                    'day'         => $c->getDayOfWeek(),
+                    'start'       => $this->getTimeFromSchedule($c->getStartHour(), $c->getStartMinute()),
+                    'end'         => $this->getTimeFromSchedule($c->getEndHour(), $c->getEndMinute()),
+                    'schedule_id' => $c->getId()
+                ];
+            }
+        }
+
+
+        return Response::getInstance($return);
+    }
+
+    protected function getTimeFromSchedule(int $hour, string $minute) {
+        switch ($minute) {
+            case MinuteOfHour::ZERO:
+                $m = 0;
+                break;
+            case MinuteOfHour::FIFTEEN:
+                $m = 15;
+                break;
+            case MinuteOfHour::THIRTY:
+                $m = 30;
+                break;
+            case MinuteOfHour::FORTY_FIVE:
+                $m = 45;
+                break;
+            default:
+                $m = 0;
+                break;
+        }
+
+        return $hour . ':' . $m;
     }
 
     protected function getPidFromTemplate($urlTemplate) {

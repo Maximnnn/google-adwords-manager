@@ -36,11 +36,7 @@ class NegativeCampaignCriterion extends BaseController
         $selector->setPredicates(
             [
                 new Predicate('CampaignId', PredicateOperator::IN, $request->post('campaignIds')),
-                new Predicate(
-                    'CriteriaType',
-                    PredicateOperator::IN,
-                    [CriterionType::KEYWORD]
-                )
+                new Predicate('CriteriaType', PredicateOperator::IN, [CriterionType::KEYWORD])
             ]
         );
         $selector->setPaging(new Paging(0, self::PAGE_LIMIT));
@@ -62,17 +58,15 @@ class NegativeCampaignCriterion extends BaseController
                         if (get_class($criterion) == 'Google\AdsApi\AdWords\v201809\cm\NegativeCampaignCriterion') {
                             /**@var $a Keyword */
                             $a = $criterion->getCriterion();
-                            if (get_class($a) == 'Google\AdsApi\AdWords\v201809\cm\Keyword') {
-                                $arr = [];
-                                $arr['negative'] = $criterion->getIsNegative();
-                                $arr['id'] = $a->getId();
-                                $arr['campaign_id'] = $criterion->getCampaignId();
-                                $arr['text'] = $a->getText();
-                                $arr['criterion_type'] = $a->getCriterionType();
-                                $arr['type'] = $a->getType();
-                                $arr['match_type'] = $a->getMatchType();
-                                $return[] = $arr;
-                            }
+                            $return[] = [
+                                'negative' => $criterion->getIsNegative(),
+                                'keyword_id' => $a->getId(),
+                                'campaign_id' => $criterion->getCampaignId(),
+                                'text' => $a->getText(),
+                                'criterion_type' => $a->getCriterionType(),
+                                'type' => $a->getType(),
+                                'match_type' => $a->getMatchType(),
+                            ];
                         }
                     }
                 }

@@ -8,6 +8,7 @@ use App\Http\Response;
 use App\Validation\Rules;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSession;
+use Google\AdsApi\AdWords\v201809\cm\CriterionType;
 use Google\AdsApi\AdWords\v201809\cm\Paging;
 use Google\AdsApi\AdWords\v201809\cm\Keyword;
 use Google\AdsApi\AdWords\v201809\cm\Predicate;
@@ -31,6 +32,7 @@ class SharedCriterion extends BaseController
             $selector->setPredicates(
                 [
                     new Predicate('SharedSetId', PredicateOperator::IN, $sharedSetIds),
+                    new Predicate('CriteriaType', PredicateOperator::IN, [CriterionType::KEYWORD])
                 ]
             );
         }
@@ -51,21 +53,18 @@ class SharedCriterion extends BaseController
                 foreach ($page->getEntries() as $sharedCriterion) {
                     {
                         if (get_class($sharedCriterion) == 'Google\AdsApi\AdWords\v201809\cm\SharedCriterion') {
-                            $arr = [
-                                'shared_set_id' => $sharedCriterion->getSharedSetId(),
-                                'negative' => $sharedCriterion->getNegative(),
-
-                            ];
                             /**@var $a Keyword*/
                             $a = $sharedCriterion->getCriterion();
-                            if (get_class($a) == 'Google\AdsApi\AdWords\v201809\cm\Keyword') {
-                                $arr['id'] = $a->getId();
-                                $arr['text'] = $a->getText();
-                                $arr['criterion_type'] = $a->getCriterionType();
-                                $arr['type'] = $a->getType();
-                                $arr['match_type'] = $a->getMatchType();
-                            }
-                            $return[] = $arr;
+                            $return[] = [
+                                'shared_set_id' => $sharedCriterion->getSharedSetId(),
+                                'negative' => $sharedCriterion->getNegative(),
+                                'keyword_id' => $a->getId(),
+                                'text' => $a->getText(),
+                                'criterion_type' => $a->getCriterionType(),
+                                'type' => $a->getType(),
+                                'match_type' => $a->getMatchType()
+                            ];
+
                         }
 
                         //pn($sharedCriterion);
