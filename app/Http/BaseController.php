@@ -72,7 +72,15 @@ abstract class BaseController {
         $session = (new AdWordsSessionBuilder())->fromFile($file)->withOAuth2Credential($oAuth2Credential)->build();*/
         $oAuth2Credential = $this->getOAuth2();
         $session = $this->getSession($oAuth2Credential);
-        return Response::getInstance(static::runExample(new AdWordsServices(), $session, $request))->type('json');
+
+        try {
+            $result = static::runExample(new AdWordsServices(), $session, $request);
+        } catch (\Exception $e) {
+            mylog($e);
+            $result = [];
+        }
+
+        return Response::getInstance($result)->type('json');
     }
 
     protected function getSession($oAuth2Credential){

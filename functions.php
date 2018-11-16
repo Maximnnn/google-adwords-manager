@@ -43,3 +43,7 @@ function getSetting($key) {
 
     return null;
 }
+
+function mylog($message) {
+    file_put_contents(SITEROOT. '/log.txt', $message . ' ' . date('Y-m-d H:i:s') . PHP_EOL, FILE_APPEND);
+}
